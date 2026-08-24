@@ -295,17 +295,6 @@ cp .streamlit/secrets.toml.example .streamlit/secrets.toml
 streamlit run app.py
 ```
 
----
-
-## ☁️ Deploy to Streamlit Community Cloud (Free, Public URL)
-
-1. Push this repo to GitHub.
-2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**.
-3. Select your repo, branch `main`, file `app.py`.
-4. Under **Advanced settings → Secrets**, paste the full contents of your `secrets.toml`.
-5. Click **Deploy** — you get a free public URL instantly.
-
----
 
 ## 📊 CSV Format
 
@@ -385,12 +374,6 @@ streamlit run app.py
 - **Calendar:** `google-api-python-client` + `google-auth-oauthlib`
 - **Data:** pandas + pytz
 
----
 
-## 📄 License
-
-MIT License — free to use, modify, and distribute.
-
----
 
 *Built for the myNachiketa GTM Engineering Intern Assignment*
