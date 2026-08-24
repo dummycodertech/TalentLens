@@ -1,0 +1,10 @@
+*.db
+.streamlit/secrets.toml
+__pycache__/
+*.pyc
+.env
+*.egg-info/
+.venv/
+venv/
+client_secret.json
+token.json
