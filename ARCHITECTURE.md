@@ -66,6 +66,33 @@ The scoring approach is a **Weighted Sum Model (WSM)**, the simplest form of **M
 
 **It is maximally auditable.** Every sub-score, weight, and reasoning string is stored in SQLite and visible in the dashboard. The explainability requirement ("Explainable AI scoring") is satisfied at the formula level — no post-hoc explanation method needed.
 
+---
+
+## Candidate Archetypes (Unsupervised Clustering)
+
+Unlike supervised approaches (which would require outcome labels that don't exist in this dataset), the archetype feature uses **K-means clustering**, which requires no labels at all — so it carries none of the label-circularity limitations that would apply to a supervised model trained on synthetic hire/no-hire labels.
+
+### How it works
+
+1. **Synthetic profile generation**: 800 candidate profiles (200 per archetype) are sampled from 4 deliberate Gaussian distributions, each representing a known candidate pattern:
+   - **Research-Deep**: High CGPA, strong project quality, moderate GitHub, focused academic profile
+   - **Builder**: High GitHub activity, strong projects, lower CGPA — ships code over papers
+   - **Fast-Learner**: Lower scores across the board but balanced — early-career, high potential
+   - **All-Rounder**: Above-average on everything, no single standout dimension
+
+2. **K-means fitting**: `StandardScaler` + `KMeans(k=4)` on `[jd_match, project_quality, github_score, cgpa]`. Cluster IDs are mapped to archetype names by majority vote of `true_archetype` within each cluster.
+
+3. **Real candidate assignment**: Each scored candidate is projected onto the fitted centroids by Euclidean distance in scaled feature space. Assignment is the nearest centroid; confidence is a softmax over negative distances across all 4 centroids.
+
+4. **Missing signal handling**: If `github_score` is `None`, the synthetic population mean is imputed before scaling. This is documented as a stated limitation, consistent with the WSM missing-signal pattern.
+
+### What it answers that WSM doesn't
+
+WSM answers "how highly does this candidate rank?" (a total ordering by score). Archetypes answer "what *kind* of candidate is this?" (a descriptive grouping by profile shape). The two are complementary:
+
+- A Research-Deep candidate ranked #2 and a Builder ranked #3 might have similar scores but very different strengths — the archetype surfaces this for a recruiter building a diverse team.
+- Archetypes **do not affect** `final_score` or `rank`. They are a purely descriptive overlay, displayed separately, with a permanent disclosure in the UI.
+
 ### Formula
 
 ```

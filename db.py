@@ -61,16 +61,19 @@ CREATE TABLE IF NOT EXISTS candidates (
 );
 
 CREATE TABLE IF NOT EXISTS scores (
-    s_no              INTEGER PRIMARY KEY,
-    jd_match          REAL,
-    embedding_sim     REAL,
-    project_quality   REAL,
-    github_score      REAL,
-    test_score        REAL,
-    final_score       REAL,
-    llm_reasoning     TEXT,
-    github_breakdown  TEXT,
-    rank              INTEGER,
+    s_no                  INTEGER PRIMARY KEY,
+    jd_match              REAL,
+    embedding_sim         REAL,
+    project_quality       REAL,
+    github_score          REAL,
+    test_score            REAL,
+    final_score           REAL,
+    llm_reasoning         TEXT,
+    github_breakdown      TEXT,
+    rank                  INTEGER,
+    archetype             TEXT,
+    archetype_confidence  REAL,
+    archetype_breakdown   TEXT,
     FOREIGN KEY (s_no) REFERENCES candidates(s_no)
 );
 
@@ -95,9 +98,19 @@ def get_conn() -> sqlite3.Connection:
 
 
 def init_db() -> None:
-    """Create tables if they don't exist."""
+    """Create tables if they don't exist, and migrate schema if needed."""
     with get_conn() as conn:
         conn.executescript(SCHEMA)
+        # Migrate: add archetype columns to scores if upgrading from older schema
+        for col, coltype in [
+            ("archetype", "TEXT"),
+            ("archetype_confidence", "REAL"),
+            ("archetype_breakdown", "TEXT"),
+        ]:
+            try:
+                conn.execute(f"ALTER TABLE scores ADD COLUMN {col} {coltype}")
+            except Exception:
+                pass  # Column already exists
 
 
 def reset_db() -> None:
@@ -242,6 +255,7 @@ def get_all_candidates() -> pd.DataFrame:
             s.jd_match, s.embedding_sim, s.project_quality,
             s.github_score, s.test_score, s.final_score,
             s.llm_reasoning, s.github_breakdown, s.rank,
+            s.archetype, s.archetype_confidence, s.archetype_breakdown,
             ie.meet_link, ie.scheduled_time, ie.invite_sent
         FROM candidates c
         LEFT JOIN scores s ON c.s_no = s.s_no
