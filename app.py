@@ -47,6 +47,8 @@ db.init_db()
 st.markdown("""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+  @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
   /* ─── Base Reset ─── */
   html, body, [class*="css"] {
