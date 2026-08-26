@@ -8,3 +8,4 @@ __pycache__/
 venv/
 client_secret.json
 token.json
+model_cache/
