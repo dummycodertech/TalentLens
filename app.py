@@ -45,36 +45,14 @@ db.init_db()
 # ─── CSS ──────────────────────────────────────────────────────────────────────
 
 st.markdown("""
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
 <style>
-  /* ─── CSS fallback: hide broken icon text, show real arrow ─── */
-  /* Sidebar COLLAPSE button (shown when sidebar is open) */
-  [data-testid="stSidebarCollapseButton"] span,
-  [data-testid="stSidebarCollapseButton"] p {
-    font-size: 0 !important;
-    line-height: 0 !important;
-  }
-  [data-testid="stSidebarCollapseButton"] span::before {
-    content: "◀◀";
-    font-size: 13px !important;
-    color: #8a8a9a;
-    font-family: sans-serif !important;
-  }
-  /* Sidebar EXPAND button (shown when sidebar is collapsed) */
-  [data-testid="collapsedControl"] span,
-  [data-testid="collapsedControl"] p {
-    font-size: 0 !important;
-    line-height: 0 !important;
-  }
-  [data-testid="collapsedControl"] span::before {
-    content: "▶▶";
-    font-size: 13px !important;
-    color: #8a8a9a;
-    font-family: sans-serif !important;
-  }
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  /* ─── Sidebar icon fix: hide broken text, show CSS arrow ─── */
+  [data-testid="stSidebarCollapseButton"] span { font-size: 0 !important; }
+  [data-testid="stSidebarCollapseButton"] span::before { content: "◀"; font-size: 14px; color: #5a5a6a; }
+  [data-testid="collapsedControl"] span { font-size: 0 !important; }
+  [data-testid="collapsedControl"] span::before { content: "▶"; font-size: 14px; color: #5a5a6a; }
 
   /* ─── Base Reset ─── */
   html, body, [class*="css"] {
