@@ -1146,12 +1146,13 @@ with tab3:
         total_r = len(ranked_df)
         showing = len(filtered)
         has_arch = filtered["archetype"].notna().any() if "archetype" in filtered.columns else False
+        arch_note = '<span style="font-size:12px;font-family:\'IBM Plex Mono\',monospace;color:#3a3a4a;font-style:italic">Archetypes are descriptive only — they do not affect rank.</span>' if has_arch else ''
         st.markdown(f"""
         <div style="display:flex;align-items:center;gap:24px;margin-bottom:20px">
           <span style="font-size:13px;font-family:'IBM Plex Mono',monospace;color:#5a5a6a">
             Showing <span style="color:#e8e5de">{showing}</span> of <span style="color:#e8e5de">{total_r}</span> ranked
           </span>
-          {'<span style="font-size:12px;font-family:\'IBM Plex Mono\',monospace;color:#3a3a4a;font-style:italic">Archetypes are descriptive only — they do not affect rank.</span>' if has_arch else ''}
+          {arch_note}
         </div>""", unsafe_allow_html=True)
 
         for _, row in filtered.iterrows():
