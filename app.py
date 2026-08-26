@@ -45,10 +45,36 @@ db.init_db()
 # ─── CSS ──────────────────────────────────────────────────────────────────────
 
 st.markdown("""
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap');
-  @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-  @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+  /* ─── CSS fallback: hide broken icon text, show real arrow ─── */
+  /* Sidebar COLLAPSE button (shown when sidebar is open) */
+  [data-testid="stSidebarCollapseButton"] span,
+  [data-testid="stSidebarCollapseButton"] p {
+    font-size: 0 !important;
+    line-height: 0 !important;
+  }
+  [data-testid="stSidebarCollapseButton"] span::before {
+    content: "◀◀";
+    font-size: 13px !important;
+    color: #8a8a9a;
+    font-family: sans-serif !important;
+  }
+  /* Sidebar EXPAND button (shown when sidebar is collapsed) */
+  [data-testid="collapsedControl"] span,
+  [data-testid="collapsedControl"] p {
+    font-size: 0 !important;
+    line-height: 0 !important;
+  }
+  [data-testid="collapsedControl"] span::before {
+    content: "▶▶";
+    font-size: 13px !important;
+    color: #8a8a9a;
+    font-family: sans-serif !important;
+  }
 
   /* ─── Base Reset ─── */
   html, body, [class*="css"] {
