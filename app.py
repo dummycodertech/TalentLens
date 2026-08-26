@@ -475,17 +475,40 @@ st.markdown("""
     letter-spacing: 0.03em !important;
     text-transform: uppercase !important;
     transition: all 0.15s !important;
-    border: 1px solid #2a2a3d !important;
   }
+
+  /* Primary (green) buttons — use data-testid, the correct Streamlit selector */
+  [data-testid="baseButton-primary"],
   .stButton > button[kind="primary"] {
     background: #2dd4a8 !important;
-    color: #0c0c14 !important;
-    border-color: #2dd4a8 !important;
+    color: #050a07 !important;  /* near-black — maximum contrast on green */
+    border: 2px solid #2dd4a8 !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
   }
+  [data-testid="baseButton-primary"]:hover,
   .stButton > button[kind="primary"]:hover {
-    background: #24b892 !important;
-    border-color: #24b892 !important;
+    background: #1fbf96 !important;
+    border-color: #1fbf96 !important;
+    color: #000 !important;
+    transform: translateY(-1px);
   }
+
+  /* Secondary (dark) buttons */
+  [data-testid="baseButton-secondary"],
+  .stButton > button[kind="secondary"] {
+    background: #1a1a2e !important;
+    color: #d0d0e0 !important;
+    border: 1px solid #2a2a3d !important;
+  }
+  [data-testid="baseButton-secondary"]:hover,
+  .stButton > button[kind="secondary"]:hover {
+    background: #22223a !important;
+    color: #ffffff !important;
+    border-color: #3a3a55 !important;
+    transform: translateY(-1px);
+  }
+
   .stButton > button:hover {
     transform: translateY(-1px);
   }
@@ -598,22 +621,7 @@ st.markdown("""
   header[data-testid="stHeader"] button  { display: none !important; }
   header[data-testid="stHeader"] a       { display: none !important; }
 
-  /* ─── Button text contrast fixes ─── */
-  .stButton > button[kind="primary"] {
-    color: #0a0a12 !important;
-    font-weight: 700 !important;
-    text-shadow: none !important;
-  }
-  .stButton > button[kind="secondary"] {
-    color: #c8c8d8 !important;
-    background: #1a1a28 !important;
-    border-color: #2a2a3d !important;
-  }
-  .stButton > button[kind="secondary"]:hover {
-    color: #e8e5de !important;
-    background: #22223a !important;
-    border-color: #3a3a55 !important;
-  }
+  /* Button contrast already handled above via data-testid selectors */
 </style>
 """, unsafe_allow_html=True)
 
