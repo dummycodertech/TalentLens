@@ -586,11 +586,17 @@ st.markdown("""
     background: #0c0c14 !important;
     border-bottom: 1px solid #1a1a28;
   }
-  /* Hide keyboard shortcut / deploy button in toolbar */
-  [data-testid="stToolbar"] { display: none !important; }
-  [data-testid="stDecoration"] { display: none !important; }
-  button[title="Keyboard shortcuts"] { display: none !important; }
+
+  /* ─── Hide keyboard_doc / toolbar buttons (all Streamlit versions) ─── */
+  [data-testid="stToolbar"]               { display: none !important; visibility: hidden !important; }
+  [data-testid="stDecoration"]            { display: none !important; }
+  [data-testid="stToolbarActions"]        { display: none !important; }
+  button[title="Keyboard shortcuts"]      { display: none !important; }
+  button[aria-label="Keyboard shortcuts"] { display: none !important; }
   [data-testid="baseButton-headerNoPadding"] { display: none !important; }
+  /* Catch-all: every button inside the header bar */
+  header[data-testid="stHeader"] button  { display: none !important; }
+  header[data-testid="stHeader"] a       { display: none !important; }
 
   /* ─── Button text contrast fixes ─── */
   .stButton > button[kind="primary"] {
@@ -609,6 +615,47 @@ st.markdown("""
     border-color: #3a3a55 !important;
   }
 </style>
+""", unsafe_allow_html=True)
+
+# ─── JS: nuke the keyboard shortcut button from the DOM ───────────────────────
+st.markdown("""
+<script>
+(function removeKeyboardBtn() {
+  function nuke() {
+    // Target by title, aria-label, and data-testid variants
+    var selectors = [
+      'button[title="Keyboard shortcuts"]',
+      'button[aria-label="Keyboard shortcuts"]',
+      '[data-testid="stToolbar"]',
+      '[data-testid="stToolbarActions"]',
+      '[data-testid="baseButton-headerNoPadding"]',
+    ];
+    selectors.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el) {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        if (el.parentNode && el.tagName !== 'HEADER') {
+          try { el.parentNode.removeChild(el); } catch(e) {}
+        }
+      });
+    });
+    // Also hide any button in the header whose text/icon looks like keyboard_doc
+    document.querySelectorAll('header button').forEach(function(btn) {
+      if (!btn.closest('.stButton')) {
+        btn.style.display = 'none';
+      }
+    });
+  }
+  // Run immediately and then poll for a few seconds (Streamlit injects lazily)
+  nuke();
+  var tries = 0;
+  var interval = setInterval(function() {
+    nuke();
+    tries++;
+    if (tries > 20) clearInterval(interval);
+  }, 300);
+})();
+</script>
 """, unsafe_allow_html=True)
 
 # ─── Session state initialization ─────────────────────────────────────────────
