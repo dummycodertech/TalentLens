@@ -230,6 +230,14 @@ def get_by_status(status: str) -> list[sqlite3.Row]:
         ).fetchall()
 
 
+def get_candidate(s_no: int) -> sqlite3.Row | None:
+    """Return a single candidate row by primary key, or None if not found."""
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM candidates WHERE s_no = ?", (s_no,)
+        ).fetchone()
+
+
 def get_candidates_past_status(status: str) -> list[sqlite3.Row]:
     """Return all candidates at or past a given status in the flow."""
     idx = STATUS_FLOW.index(status) if status in STATUS_FLOW else 0
