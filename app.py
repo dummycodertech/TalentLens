@@ -631,13 +631,9 @@ st.markdown("""
     border-bottom: 1px solid #1a1a28;
   }
 
-  /* ─── Hide keyboard_doc / toolbar buttons (all Streamlit versions) ─── */
-  [data-testid="stToolbar"]               { display: none !important; visibility: hidden !important; }
-  [data-testid="stDecoration"]            { display: none !important; }
-  [data-testid="stToolbarActions"]        { display: none !important; }
+  /* Only hide keyboard shortcut button — nothing else (other rules were hiding the sidebar!) */
   button[title="Keyboard shortcuts"]      { display: none !important; }
   button[aria-label="Keyboard shortcuts"] { display: none !important; }
-  [data-testid="baseButton-headerNoPadding"] { display: none !important; }
 
   /* Button contrast already handled above via data-testid selectors */
 </style>
