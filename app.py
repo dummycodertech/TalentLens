@@ -19,7 +19,7 @@ import pytz
 # ─── Page config ───────────────────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="AI Candidate Screener — myNachiketa",
+    page_title="AI Candidate Screener",
     page_icon="🎯",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -586,6 +586,28 @@ st.markdown("""
     background: #0c0c14 !important;
     border-bottom: 1px solid #1a1a28;
   }
+  /* Hide keyboard shortcut / deploy button in toolbar */
+  [data-testid="stToolbar"] { display: none !important; }
+  [data-testid="stDecoration"] { display: none !important; }
+  button[title="Keyboard shortcuts"] { display: none !important; }
+  [data-testid="baseButton-headerNoPadding"] { display: none !important; }
+
+  /* ─── Button text contrast fixes ─── */
+  .stButton > button[kind="primary"] {
+    color: #0a0a12 !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+  }
+  .stButton > button[kind="secondary"] {
+    color: #c8c8d8 !important;
+    background: #1a1a28 !important;
+    border-color: #2a2a3d !important;
+  }
+  .stButton > button[kind="secondary"]:hover {
+    color: #e8e5de !important;
+    background: #22223a !important;
+    border-color: #3a3a55 !important;
+  }
 </style>
 """, unsafe_allow_html=True)
 
@@ -618,8 +640,8 @@ def _secret(key: str, fallback: str = "") -> str:
 # ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 with st.sidebar:
-    st.markdown("## Screener")
-    st.markdown("**myNachiketa** — GTM Engineering")
+    st.markdown("## AI Screener")
+    st.markdown("<span style='font-size:12px;color:#5a5a6a;font-family:IBM Plex Mono,monospace'>Candidate Evaluation Platform</span>", unsafe_allow_html=True)
     st.divider()
 
     st.markdown("### Weights")
@@ -1384,9 +1406,39 @@ with tab5:
                 else:
                     ok   = sum(1 for r in results.values() if isinstance(r, dict) and r.get("success"))
                     fail = sum(1 for r in results.values() if isinstance(r, dict) and not r.get("success"))
-                    if ok:   st.success(f"{ok} interviews scheduled. Google sent invite emails.")
+                    if ok:   st.success(f"{ok} interviews scheduled on Google Calendar.")
                     if fail: st.error(f"{fail} scheduling failures.")
+
+                    # ── Also send meet-link email to each successfully scheduled candidate ──
+                    gmail_addr = _secret("GMAIL_ADDRESS")
+                    gmail_pass  = _secret("GMAIL_APP_PASSWORD")
+                    if gmail_addr and gmail_pass and ok > 0:
+                        # Build list of candidates who got a meet link
+                        invite_list = []
+                        for sno, res in results.items():
+                            if isinstance(res, dict) and res.get("success") and res.get("meet_link"):
+                                cand_row = db.get_candidate(sno)
+                                if cand_row:
+                                    invite_list.append({
+                                        "s_no": sno,
+                                        "name": cand_row["name"],
+                                        "email": cand_row["email"],
+                                        "meet_link": res["meet_link"],
+                                        "scheduled_time": res.get("scheduled_time", ""),
+                                    })
+                        if invite_list:
+                            with st.spinner(f"Sending Meet link emails to {len(invite_list)} candidates…"):
+                                email_results = emailer.send_interview_links(
+                                    candidates=invite_list,
+                                    gmail_address=gmail_addr,
+                                    app_password=gmail_pass,
+                                )
+                            e_ok   = sum(1 for r in email_results.values() if r.get("success"))
+                            e_fail = len(email_results) - e_ok
+                            if e_ok:   st.success(f"✉️ Meet link emails sent to {e_ok} candidates.")
+                            if e_fail: st.warning(f"{e_fail} meet-link email(s) failed.")
                 st.rerun()
+
 
     with col_status:
         st.markdown('<div class="sec-title">Scheduled Interviews</div>', unsafe_allow_html=True)

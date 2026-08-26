@@ -1,5 +1,5 @@
 """
-modules/emailer.py — Gmail SMTP email sender for test links.
+modules/emailer.py — Gmail SMTP email sender for test links and interview invites.
 
 C10: Subject includes candidate name + s_no for disambiguation in shared recruiter inbox.
 C9: send_test_links() iterates over actual DB rows, never range().
@@ -45,7 +45,7 @@ def build_test_email_html(candidate_name: str, s_no: int, test_url: str) -> str:
   <div class="container">
     <div class="header">
       <h1>🎯 You've been shortlisted!</h1>
-      <p>myNachiketa GTM Engineering Internship</p>
+      <p>Technical Assessment Invitation</p>
     </div>
     <div class="body">
       <p>Hi <strong>{candidate_name}</strong>,</p>
@@ -61,10 +61,80 @@ def build_test_email_html(candidate_name: str, s_no: int, test_url: str) -> str:
         Your progress is saved automatically.
       </div>
       <p>If you have any issues accessing the test, please reply to this email.</p>
-      <p>Best of luck!<br><strong>myNachiketa Recruiting Team</strong></p>
+      <p>Best of luck!<br><strong>Recruiting Team</strong></p>
     </div>
     <div class="footer">
-      Ref: Candidate #{s_no} | myNachiketa GTM Engineering Intern Assessment
+      Ref: Candidate #{s_no} | Technical Assessment
+    </div>
+  </div>
+</body>
+</html>
+"""
+
+
+def build_interview_email_html(
+    candidate_name: str,
+    s_no: int,
+    meet_link: str,
+    scheduled_time: str,
+) -> str:
+    """Build an HTML email with the Google Meet link for the interview."""
+    return f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #1a1a2e; background: #f8f9fa; margin: 0; padding: 0; }}
+    .container {{ max-width: 560px; margin: 40px auto; background: #fff;
+                  border-radius: 12px; overflow: hidden;
+                  box-shadow: 0 4px 20px rgba(0,0,0,0.08); }}
+    .header {{ background: linear-gradient(135deg, #2dd4a8 0%, #1a9c7a 100%);
+               padding: 32px 40px; color: white; }}
+    .header h1 {{ margin: 0; font-size: 22px; font-weight: 700; }}
+    .header p {{ margin: 6px 0 0; opacity: 0.9; font-size: 14px; }}
+    .body {{ padding: 32px 40px; }}
+    .body p {{ line-height: 1.7; color: #444; margin: 0 0 16px; }}
+    .cta {{ display: block; background: linear-gradient(135deg, #2dd4a8, #1a9c7a);
+            color: white !important; text-decoration: none; text-align: center;
+            padding: 16px 28px; border-radius: 8px; font-weight: 700;
+            font-size: 17px; margin: 24px 0; letter-spacing: 0.01em; }}
+    .info-box {{ background: #f0fff9; border-left: 4px solid #2dd4a8;
+                 border-radius: 6px; padding: 14px 18px; margin: 16px 0; }}
+    .info-box strong {{ color: #1a9c7a; }}
+    .footer {{ padding: 20px 40px; border-top: 1px solid #eee;
+               color: #999; font-size: 12px; }}
+    .time-block {{ font-size: 18px; font-weight: 700; color: #1a1a2e;
+                   background: #f0fff9; border-radius: 8px; padding: 12px 20px;
+                   margin: 16px 0; border: 1px solid #2dd4a8; display: inline-block; }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📅 Interview Scheduled!</h1>
+      <p>Your interview has been confirmed</p>
+    </div>
+    <div class="body">
+      <p>Hi <strong>{candidate_name}</strong>,</p>
+      <p>
+        Great news — your interview has been scheduled. Here are your details:
+      </p>
+      <div class="time-block">🕐 {scheduled_time}</div>
+      <p>Click the button below to join your Google Meet interview at the scheduled time:</p>
+      <a href="{meet_link}" class="cta">🎥 Join Google Meet Interview</a>
+      <div class="info-box">
+        <strong>⏱ Tips:</strong><br>
+        • Join 2–3 minutes early to test your audio and video<br>
+        • Ensure a stable internet connection<br>
+        • Have your work/projects ready to discuss
+      </div>
+      <p>If you have any questions or need to reschedule, please reply to this email.</p>
+      <p>Looking forward to speaking with you!<br><strong>Recruiting Team</strong></p>
+    </div>
+    <div class="footer">
+      Ref: Candidate #{s_no} | Interview Confirmation
     </div>
   </div>
 </body>
@@ -77,6 +147,11 @@ def build_test_subject(candidate_name: str, s_no: int) -> str:
     C10: Include name + s_no in subject so recruiter's shared inbox is navigable.
     """
     return f"Assessment Link — {candidate_name} (s_no {s_no})"
+
+
+def build_interview_subject(candidate_name: str, s_no: int) -> str:
+    """Subject for the interview meet-link confirmation email."""
+    return f"Interview Scheduled — {candidate_name} (s_no {s_no})"
 
 
 # ─── SMTP send ─────────────────────────────────────────────────────────────────
@@ -94,7 +169,7 @@ def send_email(
     """
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
-    msg["From"] = f"myNachiketa Recruiting <{gmail_address}>"
+    msg["From"] = f"AI Screener <{gmail_address}>"
     msg["To"] = to_address
 
     msg.attach(MIMEText(html_body, "html"))
@@ -152,5 +227,53 @@ def send_test_links(
 
         if status_callback:
             status_callback(sno, "test_sent" if result["success"] else "email_failed")
+
+    return results
+
+
+def send_interview_links(
+    candidates: list,  # list of dicts with keys: s_no, name, email, meet_link, scheduled_time
+    gmail_address: str,
+    app_password: str,
+    status_callback=None,
+) -> dict[int, dict]:
+    """
+    Send interview meet-link emails to scheduled candidates.
+    Each email contains a clickable Google Meet button.
+
+    Returns: dict of s_no -> send result
+    """
+    results = {}
+
+    for row in candidates:
+        sno = row.get("s_no")
+        name = row.get("name") or f"Candidate {sno}"
+        email = row.get("email", "")
+        meet_link = row.get("meet_link", "")
+        scheduled_time = row.get("scheduled_time", "")
+
+        if not email or not meet_link:
+            results[sno] = {"success": False, "error": "Missing email or meet link"}
+            continue
+
+        # Format time nicely if it's an ISO string
+        try:
+            from datetime import datetime
+            dt = datetime.fromisoformat(scheduled_time)
+            time_str = dt.strftime("%A, %d %b %Y at %H:%M IST")
+        except Exception:
+            time_str = scheduled_time
+
+        if status_callback:
+            status_callback(sno, "sending interview invite…")
+
+        subject = build_interview_subject(name, sno)
+        html_body = build_interview_email_html(name, sno, meet_link, time_str)
+
+        result = send_email(email, subject, html_body, gmail_address, app_password)
+        results[sno] = result
+
+        if status_callback:
+            status_callback(sno, "invite_sent" if result["success"] else "invite_failed")
 
     return results

@@ -85,7 +85,7 @@ def create_interview_event(
     event_body = {
         "summary": title,
         "description": (
-            f"Interview for myNachiketa GTM Engineering Internship\n"
+            f"Candidate Interview\n"
             f"Candidate: {name} (s_no {sno})\n"
             f"Duration: {duration_mins} minutes"
         ),
