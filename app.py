@@ -638,9 +638,6 @@ st.markdown("""
   button[title="Keyboard shortcuts"]      { display: none !important; }
   button[aria-label="Keyboard shortcuts"] { display: none !important; }
   [data-testid="baseButton-headerNoPadding"] { display: none !important; }
-  /* Catch-all: every button inside the header bar */
-  header[data-testid="stHeader"] button  { display: none !important; }
-  header[data-testid="stHeader"] a       { display: none !important; }
 
   /* Button contrast already handled above via data-testid selectors */
 </style>
