@@ -89,6 +89,9 @@ st.markdown("""
   section[data-testid="stSidebar"] hr {
     border-color: #1a1a28 !important;
   }
+  /* API dot colors — must be more specific than the wildcard * rule above */
+  section[data-testid="stSidebar"] .api-dot-green { color: #2dd4a8 !important; font-size: 9px !important; }
+  section[data-testid="stSidebar"] .api-dot-red   { color: #f87171 !important; font-size: 9px !important; }
 
   /* ─── Tab bar ─── */
   .stTabs [data-baseweb="tab-list"] {
@@ -477,36 +480,54 @@ st.markdown("""
     transition: all 0.15s !important;
   }
 
-  /* Primary (green) buttons — use data-testid, the correct Streamlit selector */
+  /* Primary (green) — ALL known Streamlit data-testid variants */
   [data-testid="baseButton-primary"],
+  [data-testid="stBaseButton-primary"],
   .stButton > button[kind="primary"] {
     background: #2dd4a8 !important;
-    color: #050a07 !important;  /* near-black — maximum contrast on green */
     border: 2px solid #2dd4a8 !important;
     font-weight: 800 !important;
+  }
+  /* Target the text node inside primary buttons — covers p, span, div children */
+  [data-testid="baseButton-primary"] *,
+  [data-testid="stBaseButton-primary"] *,
+  .stButton > button[kind="primary"],
+  .stButton > button[kind="primary"] * {
+    color: #000000 !important;
     text-shadow: none !important;
   }
   [data-testid="baseButton-primary"]:hover,
+  [data-testid="stBaseButton-primary"]:hover,
   .stButton > button[kind="primary"]:hover {
     background: #1fbf96 !important;
     border-color: #1fbf96 !important;
-    color: #000 !important;
     transform: translateY(-1px);
   }
 
-  /* Secondary (dark) buttons */
+  /* Secondary (dark) */
   [data-testid="baseButton-secondary"],
+  [data-testid="stBaseButton-secondary"],
   .stButton > button[kind="secondary"] {
     background: #1a1a2e !important;
-    color: #d0d0e0 !important;
     border: 1px solid #2a2a3d !important;
   }
+  [data-testid="baseButton-secondary"] *,
+  [data-testid="stBaseButton-secondary"] *,
+  .stButton > button[kind="secondary"],
+  .stButton > button[kind="secondary"] * {
+    color: #d0d0e0 !important;
+  }
   [data-testid="baseButton-secondary"]:hover,
+  [data-testid="stBaseButton-secondary"]:hover,
   .stButton > button[kind="secondary"]:hover {
     background: #22223a !important;
-    color: #ffffff !important;
     border-color: #3a3a55 !important;
     transform: translateY(-1px);
+  }
+  [data-testid="baseButton-secondary"]:hover *,
+  [data-testid="stBaseButton-secondary"]:hover *,
+  .stButton > button[kind="secondary"]:hover * {
+    color: #ffffff !important;
   }
 
   .stButton > button:hover {
@@ -725,7 +746,8 @@ with st.sidebar:
     cal_ok = bool(_secret("GOOGLE_OAUTH_CLIENT_JSON"))
 
     def _dot(ok):
-        return f'<span style="color:{"#2dd4a8" if ok else "#f87171"}; font-size:8px;">\u25CF</span>'
+        cls = "api-dot-green" if ok else "api-dot-red"
+        return f'<span class="{cls}">&#x25CF;</span>'
 
     st.markdown(f"{_dot(groq_ok)} Groq LLM {'connected' if groq_ok else 'missing'}", unsafe_allow_html=True)
     st.markdown(f"{_dot(gh_ok)} GitHub PAT {'connected' if gh_ok else 'missing'}", unsafe_allow_html=True)
